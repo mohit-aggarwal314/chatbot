@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+
+    <div class="vanilla-bot"></div>
+    <script src="./src/index.mjs" type="module"></script>
+    <script type="module">
+        const { renderChatbot, createChatBotMessage } = window.vanillaJsChatbot;
+
+        const inputFieldWidget = (props) => {
+            const { setState } = props;
+            console.log("InputfieldWidget", props);
+
+            const updateInput = (e) => {
+                const value = e.target.value;
+
+                setState(prev => ({ ...prev, input: value }))
+            }
+
+            const container = document.createElement("div")
+            const input = document.createElement("input")
+            input.onchange = updateInput;
+            const output = document.createElement("div")
+
+            container.appendChild(input)
+            container.appendChild(output)
+
+            return container;
+        }
+
+        const rootEl = document.querySelector(".vanilla-bot");
+        const config = {
+            botName: "NaukriA2Zbot",
+            initialMessages: [createChatBotMessage(`Hello world`, { widget: "InputfieldWidget" })],
+            state: {
+                "input": ""
+            },
+
+            widgets: [
+                {
+                    widgetName: "InputfieldWidget",
+                    widgetFunc: inputFieldWidget,
+                    mapStateToProps: ["input"],
+                    props: {}
+                }
+            ]
+        };
+        // MessageParser starter code
+        class MessageParser {
+            constructor(actionProvider, state) {
+                this.actionProvider = actionProvider;
+
+            }
+
+            parse(message) {
+                if (message.includes("hello")) {
+                    this.actionProvider.hello()
+                }
+            }
+        }
+
+
+        // ActionProvider starter code
+        class ActionProvider {
+            constructor(
+                createChatBotMessage,
+                setStateFunc,
+                createClientMessage,
+                stateRef,
+                createCustomMessage,
+                ...rest
+            ) {
+                this.createChatBotMessage = createChatBotMessage;
+                this.setState = setStateFunc;
+                this.createClientMessage = createClientMessage;
+                this.stateRef = stateRef;
+                this.createCustomMessage = createCustomMessage;
+            }
+            hello() {
+                const message = this.createChatBotMessage("Hello from Bot")
+                this.setState((state) => {
+                    return { ...state, messages: [...state.messages, message] }
+                })
+            }
+        }
+
+
+        renderChatbot(rootEl, config, MessageParser,
+            ActionProvider)
+    </script>
+</body>
+
+</html>
